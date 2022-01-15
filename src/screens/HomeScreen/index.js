@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FlatList, RefreshControl } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import styled from "styled-components/native";
 import { coinsListRequest } from "../../services";
 import CoinItem from "../../components/CoinItem";
@@ -42,7 +42,7 @@ const HomeScreen = () => {
   }, []);
 
   return (
-    <>
+    <View>
       <HeaderText>Cryptocurrency</HeaderText>
       <FlatList
         data={coins}
@@ -59,7 +59,7 @@ const HomeScreen = () => {
           fetchCoinsList(coins.length / 50 + 1);
         }}
       />
-    </>
+    </View>
   );
 };
 

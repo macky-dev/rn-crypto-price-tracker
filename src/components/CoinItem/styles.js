@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 import { AntDesign } from "@expo/vector-icons";
 
 export const Container = styled(TouchableOpacity)`
-  padding: 15px;
+  padding: 10px;
   border-bottom-width: 0.3px;
   border-bottom-color: #282828;
   flex-direction: row;
@@ -18,6 +18,8 @@ export const Image = styled.Image`
 export const LeftContainer = styled.View`
   flex-direction: column;
   padding-left: 10px;
+  flex: 1.5;
+  justify-content: center;
 `;
 
 export const Title = styled.Text`
@@ -51,7 +53,9 @@ export const Rank = styled.Text`
 export const RightContainer = styled.View`
   margin-left: auto;
   align-items: flex-end;
+  justify-content: center;
   flex-direction: column;
+  flex: 1;
 `;
 
 export const PriceChangeIndicator = styled(AntDesign)`
@@ -65,4 +69,8 @@ export const MarketCap = styled.Text`
 
 export const ChangePercentageText = styled.Text`
   color: ${(props) => props.fontColor};
+`;
+
+export const MidContainer = styled.View`
+  align-items: center;
 `;

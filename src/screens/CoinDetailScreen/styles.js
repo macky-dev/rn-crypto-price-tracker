@@ -1,5 +1,4 @@
 import styled from "styled-components/native";
-import { ChartYLabel } from "@rainbow-me/animated-charts";
 
 export const HeaderCenter = styled.View`
   flex-direction: row;
@@ -34,7 +33,7 @@ export const PriceContainer = styled.View`
   padding: 10px;
 `;
 
-export const CurrentPriceText = styled(ChartYLabel)`
+export const CurrentPriceText = styled.Text`
   color: white;
   font-size: 30px;
   font-weight: 700;
@@ -67,4 +66,16 @@ export const FilterContainer = styled.View`
   border-radius: 5px;
   margin: 5px 10px;
   padding: 5px;
+`;
+
+export const DescriptionContainer = styled.View`
+  background-color: #2b2b2b;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 5px;
+`;
+
+export const DescriptionText = styled.Text`
+  color: white;
+  font-size: 16px; ;
 `;

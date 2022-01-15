@@ -15,7 +15,6 @@ const ChartFilterItem = (props) => {
   const { filterValue, filterText, selectedRange, setSelectedRange } = props;
   const isFilterSelected = filterValue === selectedRange;
 
-  console.log(`rendered ChartFilterItem ${filterText}`);
   return (
     <PressableContainer
       selected={isFilterSelected}

@@ -1,11 +1,6 @@
 import { useLayoutEffect, useEffect, useState } from "react";
-import { Dimensions, View, ActivityIndicator, Text } from "react-native";
+import { ActivityIndicator, Text } from "react-native";
 import { Entypo, AntDesign, FontAwesome } from "@expo/vector-icons";
-import {
-  ChartDot,
-  ChartPath,
-  ChartPathProvider,
-} from "@rainbow-me/animated-charts";
 import { coinDetailRequest, coinPricesRequest } from "../../services";
 import { useWatchList } from "../../contexts/WatchListContext";
 import {
@@ -20,10 +15,11 @@ import {
   ChangePercentageText,
   HeaderRight,
   FilterContainer,
+  DescriptionContainer,
+  DescriptionText,
 } from "./styles";
 import ChartFilterItem from "./components/ChartFilterItem";
-
-export const { width: SIZE } = Dimensions.get("window");
+import Chart from "../../components/Chart";
 
 const filterDaysArray = [
   { filterDay: "1", filterText: "24h" },
@@ -42,29 +38,19 @@ const CoinDetailScreen = ({ navigation, route }) => {
     useWatchList();
   const { coinId } = route.params;
 
-  const fetchCoinPrices = async (selectedRangeValue) => {
-    const coinPrices = await coinPricesRequest(coinId, selectedRangeValue);
-    setCoinPrices(coinPrices);
+  const fetchCoinData = async () => {
+    setIsLoading(true);
+    const coin = await coinDetailRequest(coinId);
+    setCoinData(coin);
+    setIsLoading(false);
   };
 
-  useEffect(() => {
-    const fetchCoinData = async () => {
-      setIsLoading(true);
-      const coin = await coinDetailRequest(coinId);
-      setCoinData(coin);
-      setIsLoading(false);
-    };
-
-    fetchCoinData();
-    fetchCoinPrices(1);
-  }, [coinId]);
-
-  const toggleWatchList = () => {
-    if (checkIfCoinIsWatchlisted() === false) {
-      return addToWatchList(coinId);
-    } else {
-      return removeFromWatchList(coinId);
-    }
+  const fetchCoinPrices = async (selectedRangeValue) => {
+    const fetchedCointPrices = await coinPricesRequest(
+      coinId,
+      selectedRangeValue,
+    );
+    setCoinPrices(fetchedCointPrices);
   };
 
   const onSetSelectedRange = (selectedRange) => {
@@ -74,6 +60,19 @@ const CoinDetailScreen = ({ navigation, route }) => {
 
   const checkIfCoinIsWatchlisted = () =>
     coinsWatchList.some((coin) => coin === coinId);
+
+  const toggleWatchList = () => {
+    if (checkIfCoinIsWatchlisted() === false) {
+      return addToWatchList(coinId);
+    } else {
+      return removeFromWatchList(coinId);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoinData();
+    fetchCoinPrices(1);
+  }, [coinId]);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -114,70 +113,58 @@ const CoinDetailScreen = ({ navigation, route }) => {
 
   const {
     market_data: { current_price, price_change_percentage_24h },
+    description,
   } = coinData;
 
   const { prices } = coinPrices;
 
-  const formatCurrentPrice = (value) => {
-    "worklet";
-    const price = value === "" ? current_price.usd : parseFloat(value);
-
-    if (price < 1) {
-      return `$${price}`;
-    }
-    return `$${price.toFixed(2)}`;
-  };
-
   const percentageColor =
     price_change_percentage_24h < 0 ? "#ea3943" : "#16c784";
+
   const chartColor = current_price.usd > prices[0][1] ? "#16c784" : "#ea3943";
 
   return (
     <Container>
-      <ChartPathProvider
-        data={{
-          points: prices.map(([x, y]) => ({
-            x,
-            y,
-          })),
-        }}
-      >
-        <PriceContainer>
-          <CurrentPriceText format={formatCurrentPrice} />
-          <ChangePercentageContainer color={percentageColor}>
-            <AntDesign
-              name={price_change_percentage_24h < 0 ? "caretdown" : "caretup"}
-              size={12}
-              color="white"
-            />
-            <ChangePercentageText>
-              {Math.abs(price_change_percentage_24h).toFixed(2)}%
-            </ChangePercentageText>
-          </ChangePercentageContainer>
-        </PriceContainer>
-        <FilterContainer>
-          {filterDaysArray.map((item) => (
-            <ChartFilterItem
-              filterValue={item.filterDay}
-              filterText={item.filterText}
-              selectedRange={selectedRange}
-              setSelectedRange={onSetSelectedRange}
-              key={item.filterText}
-            />
-          ))}
-        </FilterContainer>
-        <View>
-          <ChartPath
-            height={SIZE / 1.5}
-            stroke={chartColor}
-            strokeWidth={3}
-            selectedStrokeWidth={2}
-            selectedOpacity={0.9}
-            width={SIZE}
+      <PriceContainer>
+        <CurrentPriceText>
+          {`$${
+            current_price.usd < 1
+              ? current_price.usd
+              : current_price.usd.toLocaleString()
+          }`}
+        </CurrentPriceText>
+        <ChangePercentageContainer color={percentageColor}>
+          <AntDesign
+            name={price_change_percentage_24h < 0 ? "caretdown" : "caretup"}
+            size={12}
+            color="white"
           />
-          <ChartDot style={{ backgroundColor: chartColor }} />
-        </View>
-      </ChartPathProvider>
+          <ChangePercentageText>
+            {Math.abs(price_change_percentage_24h).toFixed(2)}%
+          </ChangePercentageText>
+        </ChangePercentageContainer>
+      </PriceContainer>
+
+      {/* Chart Filters */}
+      <FilterContainer>
+        {filterDaysArray.map((item) => (
+          <ChartFilterItem
+            filterValue={item.filterDay}
+            filterText={item.filterText}
+            selectedRange={selectedRange}
+            setSelectedRange={onSetSelectedRange}
+            key={item.filterText}
+          />
+        ))}
+      </FilterContainer>
+
+      {/* Chart */}
+      {coinPrices && <Chart chartData={prices} chartColor={chartColor} />}
+
+      {/* Coin description */}
+      <DescriptionContainer>
+        <DescriptionText numberOfLines={15}>{description.en}</DescriptionText>
+      </DescriptionContainer>
     </Container>
   );
 };
